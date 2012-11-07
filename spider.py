@@ -20,7 +20,7 @@ class Spider:
         self.last = self.db.fetchone()
         self.queue = Queue.Queue()
         for i in range(10):
-            Down_image(self.queue,i)
+            Download(self.queue,i)
         self.crawl()
 
     def crawl(self):
@@ -81,7 +81,7 @@ class Spider:
                         self.d.commit()
 
 
-class Down_image(threading.Thread):
+class Download(threading.Thread):
 
 
     def __init__(self,Myqueue,threadname):
