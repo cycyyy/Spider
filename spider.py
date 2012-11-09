@@ -6,7 +6,6 @@ import sqlite3
 import uuid
 import urllib
 import threading,Queue
-import time
 
 class Spider:
 
@@ -36,6 +35,8 @@ class Spider:
                 r = requests.get(url,params = payload)
                 result = self.catch(r.content)
                 if self.receive(result):
+                    for i in range(10):
+                        self.queue.put(None)
                     break
                 self.page = self.page + 1
                 print self.page
@@ -91,15 +92,12 @@ class Download(threading.Thread):
 
     def run(self):
         while True:
-            if(self.queue.empty()==False):
-                work = self.queue.get()
-                url = work[0]
-                name = work[1]
-                urllib.urlretrieve(url,'image/'+name)
-            else:
-                time.sleep(1)
-                if(self.queue.empty()==True):
-                    break
+            work = self.queue.get()
+            if work == None:
+                break
+            url = work[0]
+            name = work[1]
+            urllib.urlretrieve(url,'image/'+name)
 
 
 def main():
