@@ -6,6 +6,8 @@ import sqlite3
 import uuid
 import urllib
 import threading,Queue
+import pic
+import makegif
 
 class Spider:
 
@@ -98,9 +100,15 @@ class Download(threading.Thread):
             url = work[0]
             name = work[1]
             urllib.urlretrieve(url,'image/'+name)
+            nlist = name.split('.')
+            if not nlist[-1] == 'gif':
+                pt = pic.Pic('image/'+name)
+                pt.resize()
+            else:
+                makegif.main('image/'+name)
 
 
 def main():
-    a = Spider('diaosi365')
+    Spider('diaosi365')
 
 if __name__=='__main__':main()

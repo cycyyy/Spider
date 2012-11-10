@@ -5,7 +5,7 @@ from bottle import route,run,template,debug,static_file
 import sqlite3
 
 @route('/')
-def index(self):
+def index():
     d = sqlite3.connect('test.db')
     db = d.cursor()
     db.execute('SELECT UUID FROM IMAGE')
@@ -23,4 +23,4 @@ def server_image(filename):
     return static_file(filename,root='image/')
 
 debug(True)
-run(reloader=True)
+run()
