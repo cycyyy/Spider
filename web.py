@@ -8,7 +8,7 @@ import sqlite3
 def index():
     d = sqlite3.connect('test.db')
     db = d.cursor()
-    db.execute('SELECT UUID FROM IMAGE')
+    db.execute('SELECT UUID,HEIGHT FROM IMAGE')
     path_list = db.fetchall()
     db.close()
     output = template('model',path_list=path_list)

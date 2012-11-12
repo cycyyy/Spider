@@ -7,18 +7,21 @@ import uuid
 import urllib
 import threading,Queue
 import pic
-import makegif
+#import makegif
 
+global mutex
+mutex = threading.Lock()
 class Spider:
 
 
     def __init__(self,ad):
         self.ad = ad
-        self.d = sqlite3.connect('test.db')
-        self.db = self.d.cursor()
+        d = sqlite3.connect('test.db')
+        db = d.cursor()
         search = 'SELECT PATH FROM IMAGE WHERE LAST=1 AND PAGE=\''+ad+'\''
-        self.db.execute(search)
-        self.last = self.db.fetchone()
+        db.execute(search)
+        self.last = db.fetchone()
+        d.close()
         self.queue = Queue.Queue()
         for i in range(10):
             Download(self.queue,i)
@@ -73,15 +76,20 @@ class Spider:
                     work = (rel,name)
                     print name
                     self.queue.put(work)
+                    mutex.acquire()
+                    d = sqlite3.connect('test.db')
+                    db = d.cursor()
                     if rel==result[0] and self.page == 0:
-                        self.db.execute('INSERT INTO IMAGE VALUES(\''+name+'\',\''+rel+'\',\''+self.ad+'\',1)')
-                        self.d.commit()
+                        db.execute('INSERT INTO IMAGE VALUES(\''+name+'\',\''+rel+'\',\''+self.ad+'\',1,0)')
+                        d.commit()
                         if self.last!=None:
-                            self.db.execute('UPDATE IMAGE SET LAST=0 WHERE PATH=\''+self.last[0]+'\'')
-                            self.d.commit()
+                            db.execute('UPDATE IMAGE SET LAST=0 WHERE PATH=\''+self.last[0]+'\'')
+                            d.commit()
                     else:
-                        self.db.execute('INSERT INTO IMAGE VALUES(\''+name+'\',\''+rel+'\',\''+self.ad+'\',0)')
-                        self.d.commit()
+                        db.execute('INSERT INTO IMAGE VALUES(\''+name+'\',\''+rel+'\',\''+self.ad+'\',0,0)')
+                        d.commit()
+                    d.close()
+                    mutex.release()
 
 
 class Download(threading.Thread):
@@ -100,12 +108,19 @@ class Download(threading.Thread):
             url = work[0]
             name = work[1]
             urllib.urlretrieve(url,'image/'+name)
-            nlist = name.split('.')
-            if not nlist[-1] == 'gif':
-                pt = pic.Pic('image/'+name)
-                pt.resize()
-            else:
-                makegif.main('image/'+name)
+            #nlist = name.split('.')
+            #if not nlist[-1] == 'gif':
+            pt = pic.Pic('image/'+name)
+            height = pt.resize()
+            mutex.acquire()
+            d = sqlite3.connect('test.db')
+            db = d.cursor()
+            db.execute('UPDATE IMAGE SET HEIGHT='+str(height)+' WHERE uuid=\''+name+'\'')
+            d.commit()
+            d.close()
+            mutex.release()
+            #else:
+            #    makegif.main('image/'+name)
 
 
 def main():
