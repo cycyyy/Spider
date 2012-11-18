@@ -1,5 +1,6 @@
 #!/usr/bin/python
 #Filename:spider.py
+import sys
 import requests
 import re
 import sqlite3
@@ -80,13 +81,13 @@ class Spider:
                     d = sqlite3.connect('test.db')
                     db = d.cursor()
                     if rel==result[0] and self.page == 0:
-                        db.execute('INSERT INTO IMAGE VALUES(\''+name+'\',\''+rel+'\',\''+self.ad+'\',1,0)')
+                        db.execute('INSERT INTO IMAGE VALUES(NULL,\''+name+'\',\''+rel+'\',\''+self.ad+'\',1,0)')
                         d.commit()
                         if self.last!=None:
                             db.execute('UPDATE IMAGE SET LAST=0 WHERE PATH=\''+self.last[0]+'\'')
                             d.commit()
                     else:
-                        db.execute('INSERT INTO IMAGE VALUES(\''+name+'\',\''+rel+'\',\''+self.ad+'\',0,0)')
+                        db.execute('INSERT INTO IMAGE VALUES(NULL,\''+name+'\',\''+rel+'\',\''+self.ad+'\',0,0)')
                         d.commit()
                     d.close()
                     mutex.release()
@@ -124,6 +125,6 @@ class Download(threading.Thread):
 
 
 def main():
-    Spider('diaosi365')
+    Spider(sys.argv[1])
 
 if __name__=='__main__':main()
