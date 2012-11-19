@@ -103,25 +103,28 @@ class Download(threading.Thread):
 
     def run(self):
         while True:
-            work = self.queue.get()
-            if work == None:
-                break
-            url = work[0]
-            name = work[1]
-            urllib.urlretrieve(url,'image/'+name)
-            #nlist = name.split('.')
-            #if not nlist[-1] == 'gif':
-            pt = pic.Pic('image/'+name)
-            height = pt.resize()
-            mutex.acquire()
-            d = sqlite3.connect('test.db')
-            db = d.cursor()
-            db.execute('UPDATE IMAGE SET HEIGHT='+str(height)+' WHERE uuid=\''+name+'\'')
-            d.commit()
-            d.close()
-            mutex.release()
-            #else:
-            #    makegif.main('image/'+name)
+            try:
+                work = self.queue.get()
+                if work == None:
+                    break
+                url = work[0]
+                name = work[1]
+                urllib.urlretrieve(url,'image/'+name)
+                #nlist = name.split('.')
+                #if not nlist[-1] == 'gif':
+                pt = pic.Pic('image/'+name)
+                height = pt.resize()
+                mutex.acquire()
+                d = sqlite3.connect('test.db')
+                db = d.cursor()
+                db.execute('UPDATE IMAGE SET HEIGHT='+str(height)+' WHERE uuid=\''+name+'\'')
+                d.commit()
+                d.close()
+                mutex.release()
+                #else:
+                #    makegif.main('image/'+name)
+            except Exception:
+                print Exception
 
 
 def main():
