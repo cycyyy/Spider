@@ -32,5 +32,6 @@ class Pic(object):
 
     def resize(self):
         re = self._resize(self.im)
-        re.save(self.path)
+	a = self.path.split('/')
+        re.save('image/'+a[1])
         return re.size[1]

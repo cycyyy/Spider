@@ -109,10 +109,10 @@ class Download(threading.Thread):
                     break
                 url = work[0]
                 name = work[1]
-                urllib.urlretrieve(url,'image/'+name)
+                urllib.urlretrieve(url,'timage/'+name)
                 #nlist = name.split('.')
                 #if not nlist[-1] == 'gif':
-                pt = pic.Pic('image/'+name)
+                pt = pic.Pic('timage/'+name)
                 height = pt.resize()
                 mutex.acquire()
                 d = sqlite3.connect('test.db')
